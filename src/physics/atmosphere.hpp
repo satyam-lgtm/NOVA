@@ -16,4 +16,4 @@ public:
     const double lapseRate = -0.0065;
     return Constants::SEA_LEVEL_TEMPERATURE + lapseRate * altitude;
   }
-}
+};

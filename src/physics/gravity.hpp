@@ -4,7 +4,7 @@
 
 class Gravity {
 public:
-  static Vec3 getAccleration(const Vec3 &position) {
+  static Vec3 getAcceleration(const Vec3 &position) {
     double altitude = position.magnitude() - Constants::EARTH_RADIUS;
     if (altitude < 0)
       altitude = 0.0;
@@ -12,4 +12,4 @@ public:
     double g = Constants::G * Constants::EARTH_MASS / (r * r);
     return position.normalize() * (-g);
   }
-}
+};
