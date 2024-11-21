@@ -1,45 +1,63 @@
-
-#include "physics/aerodynamics.hpp"
-#include "physics/atmosphere.hpp"
-#include "physics/gravity.hpp"
-#include "physics/integrator.hpp"
-#include "physics/rocketbody.hpp"
-#include "physics/state.hpp"
+#include "../visualization/display.hpp"
+#include "physics/simulationengine.hpp"
+#include <fstream>
 #include <iostream>
 
 int main() {
-  RocketBody rocket(20.0, 2.0, 5000.0, 2000.0);
+  try {
+    RocketBody rocket(20.0,    // Length (m)
+                      2.0,     // Diameter (m)
+                      5000.0,  // Wet mass (kg)
+                      2000.0); // Dry mass (kg)
 
-  State state(Vec3(Constants::EARTH_RADIUS + 1000.0, 0, 0), Vec3(0, 100, 0),
-              Vec3(), rocket.getMass(), 0.0);
+    PropulsionSystem propulsion(3000.0);              // 3000 kg of fuel
+    propulsion.addEngine(100000.0, 300.0, 0.5, 20.0); // Add main engine
 
-  double dt = 0.01;
-  double endTime = 30.0;
+    State initialState(Vec3(Constants::EARTH_RADIUS + 100.0, 0,
+                            0),          // 100m above Earth's surface
+                       Vec3(0, 0, 0),    // Initial velocity
+                       Vec3(),           // Initial acceleration
+                       rocket.getMass(), // Initial mass
+                       0.0               // Initial time
+    );
 
-  while (state.time < endTime) {
-    auto calculateAcceleration = [&rocket](const State &s) {
-      Vec3 gravityForce = Gravity::getAcceleration(s.position) * s.mass;
-      Vec3 aeroForce = Aerodynamics::calculateForces(s, rocket);
-      return (gravityForce + aeroForce) / s.mass;
-    };
+    SimulationEngine sim(initialState, rocket, std::move(propulsion));
+    Display display;
 
-    state = Integrator::integrateRK4(state, calculateAcceleration, dt);
+    sim.startEngines();
+    sim.setThrottle(1.0);
 
-    if (std::fmod(state.time, 1.0) < dt) {
-      double altitude = state.position.magnitude() - Constants::EARTH_RADIUS;
-      double velocity = state.velocity.magnitude();
-      double dynamicPressure = Aerodynamics::calculateDynamicPressure(state);
+    std::ofstream dataFile("flight_data.csv");
+    dataFile << "Time,Altitude,Velocity,Acceleration,Mass,Fuel_Ratio\n";
 
-      std::cout << "Time: " << state.time << "s\n"
-                << "Altitude: " << altitude << " m\n"
-                << "Velocity: " << velocity << " m/s\n"
-                << "Acceleration: " << state.acceleration.magnitude()
-                << "m/s^2\n"
-                << "Dynamic Pressure: " << dynamicPressure << " Pa\n"
-                << "Temperature: " << Atmosphere::getTemperature(altitude)
-                << " K\n\n";
+    while (!display.shouldClose()) {
+      const State &state = sim.getState();
+
+      // Update simulation based on UI controls
+      sim.setThrottle(display.getThrottle());
+      sim.setGimbalAngles(display.getGimbalX(), display.getGimbalY());
+
+      // Update visualization
+      display.render(state, rocket, sim.getTime());
+
+      // Log data
+      if (std::fmod(sim.getTime(), 0.1) < 0.01) {
+        double altitude = state.position.magnitude() - Constants::EARTH_RADIUS;
+        double velocity = state.velocity.magnitude();
+        double acceleration = state.acceleration.magnitude();
+
+        dataFile << sim.getTime() << "," << altitude << "," << velocity << ","
+                 << acceleration << "," << state.mass << ","
+                 << sim.getRemainingFuelRatio() << "\n";
+      }
+
+      sim.step();
     }
-  }
 
-  return 0;
+    dataFile.close();
+    return 0;
+  } catch (const std::exception &e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+    return 1;
+  }
 }
