@@ -1,4 +1,4 @@
-# NOVA (Navigation in Orbital Velocity Analyzer)
+# NOVA
 
 ## Overview
 NOVA is a sophisticated rocket flight simulation system designed to analyze and visualize the complex dynamics of rocket launches and atmospheric flight. The simulator provides high-fidelity modeling of various physical phenomena affecting rocket flight, making it valuable for preliminary mission planning and educational purposes.
