@@ -3,7 +3,7 @@
 ## Overview
 NOVA is a sophisticated rocket flight simulation system designed to analyze and visualize the complex dynamics of rocket launches and atmospheric flight. The simulator provides high-fidelity modeling of various physical phenomena affecting rocket flight, making it valuable for preliminary mission planning and educational purposes.
 
-![NOVA]("assets/image.png" "Optional title")
+![NOVA](assets/image.png "NOVA")
 
 The system models:
 - Gravitational forces with real-time altitude compensation
