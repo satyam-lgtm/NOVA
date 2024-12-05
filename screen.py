@@ -136,7 +136,8 @@ class EnhancedRocketVisualizer:
             ('MASS', 'kg', '{:,.0f}'),
             ('AIR DENSITY', 'kg/m³', '{:.3f}'),
             ('TEMPERATURE', 'K', '{:.1f}'),
-            ('MACH', '', '{:.2f}')
+            ('MACH', '', '{:.2f}'),
+            ('FUEL MASS RATIO', '', '{:.2f}')
         ]
         
         for i, (param, unit, _) in enumerate(params):
@@ -315,12 +316,15 @@ class EnhancedRocketVisualizer:
             'MASS': current_data['Mass'],
             'AIR DENSITY': current_data['Air_Density'],
             'TEMPERATURE': current_data['Temperature'],
-            'MACH': current_data['Mach_Number']
+            'MACH': current_data['Mach_Number'],
+            'FUEL MASS RATIO' : current_data['Fuel_Ratio']
         }
         
         for param, text_obj in self.telemetry_texts.items():
             if param == 'ALTITUDE':
                 formatted_value = f"{value_map[param]:,.1f}"
+            elif param == 'FUEL MASS RATIO':
+                formatted_value = f"{value_map[param]:,.2f}" # Assuming 2 decimal precision to be displayed
             else:
                 formatted_value = f"{value_map[param]:.1f}"
             text_obj.set_text(formatted_value)
