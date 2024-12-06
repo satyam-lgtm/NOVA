@@ -269,26 +269,31 @@ class EnhancedRocketVisualizer:
                 path_effects.Normal()
             ]
         )
-        
+
+
+        flames = []
+        offset = 175
         # Engine flame
         if abs(velocity) > 0:
             flame_colors = ['#FF4500', '#FF8C00', '#FFD700']
+
             for i, color in enumerate(flame_colors):
-                flame_start = end if velocity < 0 else start
-                flame_length = (15-i*4)
-                flame_end = (x, y + self.rocket_height + flame_length) if velocity < 0 else (x, y - flame_length)
+                flame_start = (start[0], start[1]-offset if velocity > 0 else start[1]+offset)
+                flame_length = (10-i*4)
+                flame_end = (x, y + self.rocket_height + flame_length+offset) if velocity < 0 else (x, y - flame_length-offset)
                 
                 flame = FancyArrowPatch(
                     flame_start,
                     flame_end,
                     color=color,
                     alpha=0.7-i*0.2,
-                    linewidth=4-i,
+                    linewidth=3-i,
                     mutation_scale=self.rocket_width-(i*2)
                 )
-                self.ax_main.add_patch(flame)
+                flames.append(flame)
+
         
-        return rocket
+        return rocket, flames
 
     def update(self, frame):
         current_data = self.data.iloc[frame]
@@ -299,8 +304,10 @@ class EnhancedRocketVisualizer:
         self.setup_main_view()
         
         # Draw rocket
-        rocket = self.draw_rocket(0, current_data['Altitude'], current_data['Velocity_Magnitude'])
+        rocket, flames = self.draw_rocket(0, current_data['Altitude'], current_data['Velocity_X'])
         self.ax_main.add_patch(rocket)
+        for flame in flames:
+            self.ax_main.add_patch(flame) 
         
         # Update trajectory plot
         plot_data = self.data.iloc[:frame+1]
@@ -352,7 +359,7 @@ class EnhancedRocketVisualizer:
         return [self.trajectory_line, self.trajectory_point, 
                 *self.telemetry_texts.values(),
                 *self.mission_texts.values(),
-                rocket]
+                rocket, *flames]
 
     def animate(self):
         ani = animation.FuncAnimation(
