@@ -41,8 +41,11 @@ public:
     Vec3 liftForce =
         liftDirection * (dynamicPressure * rocket.getReferenceArea() *
                          rocket.getLiftCoefficient());
+    // Adding coriolis force vector
+    Vec3 angularVelocityVec(0,0,-Constants::EARTH_ANGULAR_VELOCITY);
+    Vec3 coriolisForce = angularVelocityVec.cross(state.velocity).operator*(-2.0 * rocket.getMass());
 
-    return dragForce + liftForce;
+    return dragForce + liftForce + coriolisForce;
   }
   static double calculateDynamicPressure(const State &state) {
     double altitude = state.position.magnitude() - Constants::EARTH_RADIUS;
