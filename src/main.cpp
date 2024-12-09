@@ -2,51 +2,18 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-#include "json.hpp"
-
-using json = nlohmann::json;
-
-void parseConfig(const std::string& fileToOpen, RocketBody& rocket, PropulsionSystem& prop){
-  std::ifstream file(fileToOpen);
-  
-  json config;
-  file >> config;
-
-  double length = config["rocket"]["length"];
-  double diameter = config["rocket"]["diameter"];
-  double wetMass = config["rocket"]["wet_mass"];
-  double dryMass = config["rocket"]["dry_mass"];
-  double fuelMass = config["propulsion"]["fuel_mass"];
-  //support for multiple engines
-  const auto& engines = config["propulsion"]["engines"];
-
-  rocket = RocketBody(length,diameter,wetMass,dryMass);
-  prop = PropulsionSystem(fuelMass);
-
-  for(const auto& engine : engines){
-    double thrust = engine["thrust"];
-    double burn_rate = engine["burn_rate"];
-    double efficiency = engine["efficiency"];
-    double nozzleDiameter = engine["nozzle_diameter"];
-    prop.addEngine(thrust, burn_rate, efficiency, nozzleDiameter);
-  }
-}
 
 int main() {
   try {
-    // // Initialize rocket configuration
-    // RocketBody rocket(20.0,    // Length (m)
-    //                   2.0,     // Diameter (m)
-    //                   5000.0,  // Wet mass (kg)
-    //                   2000.0); // Dry mass (kg)
+    // Initialize rocket configuration
+    RocketBody rocket(20.0,    // Length (m)
+                      2.0,     // Diameter (m)
+                      5000.0,  // Wet mass (kg)
+                      2000.0); // Dry mass (kg)
 
-    // // Initialize propulsion system
-    // PropulsionSystem propulsion(3000.0);              // 3000 kg of fuel
-    // propulsion.addEngine(100000.0, 300.0, 0.5, 20.0); // Add main engine
-
-    RocketBody rocket(0,0,2,1); // to not trigger error of dry mass > wet mass
-    PropulsionSystem propulsion(0);
-    parseConfig("src/config/config.json", rocket, propulsion);
+    // Initialize propulsion system
+    PropulsionSystem propulsion(3000.0);              // 3000 kg of fuel
+    propulsion.addEngine(100000.0, 300.0, 0.5, 20.0); // Add main engine
 
     // Set initial state (100m above Earth's surface)
     State initialState(Vec3(Constants::EARTH_RADIUS + 100.0, 0, 0), // Position
@@ -120,8 +87,6 @@ int main() {
 
     dataFile.close();
     std::cout << "\nSimulation completed. Data saved to flight_data.csv\n";
-  std::cout << "Current working directory: " << std::filesystem::current_path() << std::endl;
-
     return 0;
 
   } catch (const std::exception &e) {
