@@ -122,17 +122,10 @@ pip3 install matplotlib pandas numpy
 ## Running NOVA
 
 ### Basic Execution
-Run the simulation with default parameters:
+Run NOVA:
 ```bash
-g++ -std=c++17 -I src/ src/main.cpp -o nova && ./nova && python3 screen.py
+python3 nova.py
 ```
-
-This command:
-1. Compiles the C++ code with C++17 standard
-2. Includes headers from src/ directory
-3. Creates executable named 'nova'
-4. Runs the simulation
-5. Launches the Python visualization script
 
 ### Default Configuration
 The simulation starts with these parameters:
