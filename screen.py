@@ -252,7 +252,7 @@ class EnhancedRocketVisualizer:
         self.ax_mission.set_xticks([])
         self.ax_mission.set_yticks([])
 
-    def draw_rocket(self, x, y, velocity):
+    def draw_rocket(self, x, y, velocity,ratio):
         if velocity < 0:  # Descending
             start = (x, y + self.rocket_height)
             end = (x, y)
@@ -275,7 +275,7 @@ class EnhancedRocketVisualizer:
         flames = []
         offset = 175
         # Engine flame
-        if abs(velocity) > 0:
+        if abs(velocity) > 0 and ratio != 0:
             flame_colors = ['#FF4500', '#FF8C00', '#FFD700']
 
             for i, color in enumerate(flame_colors):
@@ -305,7 +305,7 @@ class EnhancedRocketVisualizer:
         self.setup_main_view()
         
         # Draw rocket
-        rocket, flames = self.draw_rocket(0, current_data['Altitude'], current_data['Velocity_X'])
+        rocket, flames = self.draw_rocket(0, current_data['Altitude'], current_data['Velocity_X'], current_data['Fuel_Ratio'])
         self.ax_main.add_patch(rocket)
         for flame in flames:
             self.ax_main.add_patch(flame) 
