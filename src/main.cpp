@@ -111,7 +111,6 @@ int main() {
 
     dataFile.close();
     std::cout << "\nSimulation completed. Data saved to flight_data.csv\n";
-
     return 0;
 
   } catch (const std::exception &e) {
